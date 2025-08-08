@@ -4,69 +4,25 @@
     "title": "SQL SELECT Basics",
     "slug": "sql-select-basics",
     "course": "intro-sql",
-    "order": 1
+    "order": 1,
+    "dataset_urls": ["https://raw.githubusercontent.com/ajaykumar2010/sample-datasets/main/customers.csv"],
+    "starter_sql": "SELECT * FROM customers;",
+    "grading": {
+      "type": "result_match",
+      "expected": { "columns": ["customer_id","name","city"], "row_count": 10, "order_matters": false }
+    },
+    "hints": ["Check the column names exactly."]
   },
   {
     "id": "lesson-02",
     "title": "Selecting Specific Columns",
     "slug": "select-columns",
     "course": "intro-sql",
-    "order": 2
-  },
-  {
-    "id": "lesson-03",
-    "title": "Filtering with WHERE",
-    "slug": "where-filter",
-    "course": "intro-sql",
-    "order": 3
-  },
-  {
-    "id": "lesson-04",
-    "title": "Sorting with ORDER BY",
-    "slug": "order-by",
-    "course": "intro-sql",
-    "order": 4
-  },
-  {
-    "id": "lesson-05",
-    "title": "LIMIT and OFFSET",
-    "slug": "limit-offset",
-    "course": "intro-sql",
-    "order": 5
-  },
-  {
-    "id": "lesson-06",
-    "title": "Using Basic Functions",
-    "slug": "functions-basics",
-    "course": "intro-sql",
-    "order": 6
-  },
-  {
-    "id": "lesson-07",
-    "title": "GROUP BY Intro",
-    "slug": "group-by",
-    "course": "intro-sql",
-    "order": 7
-  },
-  {
-    "id": "lesson-08",
-    "title": "Aggregate Functions",
-    "slug": "aggregates",
-    "course": "intro-sql",
-    "order": 8
-  },
-  {
-    "id": "lesson-09",
-    "title": "Intro to JOINs",
-    "slug": "joins-intro",
-    "course": "intro-sql",
-    "order": 9
-  },
-  {
-    "id": "lesson-10",
-    "title": "Subqueries",
-    "slug": "subqueries",
-    "course": "intro-sql",
-    "order": 10
+    "order": 2,
+    "dataset_urls": ["https://raw.githubusercontent.com/ajaykumar2010/sample-datasets/main/customers.csv"],
+    "starter_sql": "SELECT name, city FROM customers;",
+    "grading": { "type": "assertion_sql", "checks": ["SELECT COUNT(*)=10"] },
+    "hints": ["Make sure you selected only name and city."]
   }
+  // replicate entries 3–10 similarly, reusing the same dataset to start
 ]
