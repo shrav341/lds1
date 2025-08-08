@@ -1,0 +1,72 @@
+[
+  {
+    "id": "lesson-01",
+    "title": "SQL SELECT Basics",
+    "slug": "sql-select-basics",
+    "course": "intro-sql",
+    "order": 1
+  },
+  {
+    "id": "lesson-02",
+    "title": "Selecting Specific Columns",
+    "slug": "select-columns",
+    "course": "intro-sql",
+    "order": 2
+  },
+  {
+    "id": "lesson-03",
+    "title": "Filtering with WHERE",
+    "slug": "where-filter",
+    "course": "intro-sql",
+    "order": 3
+  },
+  {
+    "id": "lesson-04",
+    "title": "Sorting with ORDER BY",
+    "slug": "order-by",
+    "course": "intro-sql",
+    "order": 4
+  },
+  {
+    "id": "lesson-05",
+    "title": "LIMIT and OFFSET",
+    "slug": "limit-offset",
+    "course": "intro-sql",
+    "order": 5
+  },
+  {
+    "id": "lesson-06",
+    "title": "Using Basic Functions",
+    "slug": "functions-basics",
+    "course": "intro-sql",
+    "order": 6
+  },
+  {
+    "id": "lesson-07",
+    "title": "GROUP BY Intro",
+    "slug": "group-by",
+    "course": "intro-sql",
+    "order": 7
+  },
+  {
+    "id": "lesson-08",
+    "title": "Aggregate Functions",
+    "slug": "aggregates",
+    "course": "intro-sql",
+    "order": 8
+  },
+  {
+    "id": "lesson-09",
+    "title": "Intro to JOINs",
+    "slug": "joins-intro",
+    "course": "intro-sql",
+    "order": 9
+  },
+  {
+    "id": "lesson-10",
+    "title": "Subqueries",
+    "slug": "subqueries",
+    "course": "intro-sql",
+    "order": 10
+  }
+]
