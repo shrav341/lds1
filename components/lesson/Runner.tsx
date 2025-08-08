@@ -1,41 +1,127 @@
-React.useEffect(() => {
-  let cancelled = false
+'use client'
 
-  async function init() {
-    try {
-      const duckdb = await import('@duckdb/duckdb-wasm')
-      const VERSION = '1.29.0'
+import React from 'react'
+import Editor from '@monaco-editor/react'
+import type { AsyncDuckDB } from '@duckdb/duckdb-wasm'
+import { gradeResult, type GradingSpec } from './grading'
+import { loadDatasetsIntoDuckDB } from './datasets'
 
-      // Prefer MVP (no pthreads) when not cross-origin isolated
-      const useMvp = !('crossOriginIsolated' in window) || !window.crossOriginIsolated
+type Props = {
+  starterSQL?: string
+  datasets: string[]
+  grading: GradingSpec
+  onPass?: () => void
+}
 
-      // Helper to create a same-origin worker via Blob
-      const makeWorker = async (url: string) => {
-        const resp = await fetch(url)
-        if (!resp.ok) throw new Error(`Failed to fetch worker: ${resp.status}`)
-        const src = await resp.text()
-        const blob = new Blob([src], { type: 'text/javascript' })
-        return new Worker(URL.createObjectURL(blob))
-      }
+export default function Runner({ starterSQL, datasets, grading, onPass }: Props) {
+  const [sql, setSql] = React.useState(starterSQL || 'SELECT 1;')
+  const [output, setOutput] = React.useState('')
+  const [passing, setPassing] = React.useState<boolean | null>(null)
+  const [db, setDb] = React.useState<AsyncDuckDB | null>(null)
+  const [initError, setInitError] = React.useState<string | null>(null)
+  const [ready, setReady] = React.useState(false)
 
-      // Build the bundle we want (force MVP if needed)
-      let bundle: { mainModule: string; mainWorker: string; pthreadWorker?: string | undefined }
+  React.useEffect(() => {
+    let cancelled = false
 
-      if (useMvp) {
-        bundle = {
-          mainModule: `https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@${VERSION}/dist/duckdb-mvp.wasm`,
-          mainWorker: `https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@${VERSION}/dist/duckdb-browser-mvp.worker.js`,
+    async function init() {
+      try {
+        const duckdb = await import('@duckdb/duckdb-wasm')
+        const VERSION = '1.29.0'
+        const wasmUrl = `https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@${VERSION}/dist/duckdb-mvp.wasm`
+        const workerUrlCdn = `https://cdn.jsdelivr.net/npm/@duckdb/duckdb-wasm@${VERSION}/dist/duckdb-browser-mvp.worker.js`
+
+        if (typeof window === 'undefined' || typeof Worker === 'undefined') {
+          throw new Error('Web Workers not available')
         }
-      } else {
-        // Try auto-detect first; if it fails we'll fall back to MVP
-        const bundles = duckdb.getJsDelivrBundles()
-        bundle = await duckdb.selectBundle(bundles)
+
+        // Same-origin worker via Blob to avoid cross-origin restrictions
+        const workerSrcResp = await fetch(workerUrlCdn)
+        if (!workerSrcResp.ok) throw new Error('Failed to fetch worker')
+        const workerSrc = await workerSrcResp.text()
+        const blob = new Blob([workerSrc], { type: 'text/javascript' })
+        const worker = new Worker(URL.createObjectURL(blob))
+
+        const _db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(), worker)
+        await _db.instantiate(wasmUrl)
+
+        const conn = await _db.connect()
+        await loadDatasetsIntoDuckDB(conn, datasets)
+        await conn.close()
+
+        if (!cancelled) {
+          setDb(_db)
+          setReady(true)
+        }
+      } catch (e: any) {
+        if (!cancelled) setInitError(String(e?.message || e))
       }
+    }
 
-      let worker = await makeWorker(bundle.mainWorker)
+    init()
+    return () => {
+      cancelled = true
+    }
+  }, [datasets])
 
-      let _db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(), worker)
-      await _db.instantiate(bundle.mainModule, bundle.pthreadWorker)
+  async function run() {
+    if (!db) return
+    const conn = await db.connect()
+    try {
+      const result = await conn.query(sql)
+      const rows = result
+        .toArray()
+        .map((r) => Object.fromEntries(result.schema.fields.map((f, i) => [f.name, r.get(i)])))
 
-      // If instantiate fails (e.g., EH/pthread chosen), fall back to MVP
-      if (!_db) throw new Error('Instantiate re_
+      const graded = await gradeResult({ rows }, grading, async (assertionSql: string) => {
+        const rs = await conn.query(assertionSql)
+        return rs.get(0)?.get(0)
+      })
+
+      setOutput(JSON.stringify(rows.slice(0, 20), null, 2))
+      setPassing(graded.pass)
+      if (graded.pass && onPass) onPass()
+      if (!graded.pass && graded.hint) setOutput((p) => p + '\n\nHint: ' + graded.hint)
+    } catch (e: any) {
+      setOutput(String(e?.message || e))
+      setPassing(false)
+    } finally {
+      await conn.close()
+    }
+  }
+
+  if (initError) {
+    return (
+      <div className="p-3 rounded bg-red-50 dark:bg-red-900/30 text-sm">
+        Runner failed to initialize: {initError}
+      </div>
+    )
+  }
+
+  return (
+    <div className="space-y-3">
+      <Editor
+        height="300px"
+        defaultLanguage="sql"
+        value={sql}
+        onChange={(v) => setSql(v || '')}
+        options={{ minimap: { enabled: false } }}
+      />
+      <button
+        disabled={!ready}
+        onClick={run}
+        className="px-3 py-2 rounded bg-black text-white disabled:opacity-60 dark:bg-white dark:text-black"
+        aria-label="Run SQL"
+      >
+        {ready ? 'Run' : 'Loading runner…'}
+      </button>
+      <div className="text-sm">
+        {passing === true && <span className="text-green-600">Passed</span>}
+        {passing === false && <span className="text-red-600">Try again</span>}
+      </div>
+      <pre className="p-3 bg-gray-100 dark:bg-gray-900 rounded overflow-auto text-xs" aria-live="polite">
+        {output}
+      </pre>
+    </div>
+  )
+}
