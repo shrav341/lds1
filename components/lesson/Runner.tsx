@@ -43,7 +43,9 @@ export default function Runner({ starterSQL, datasets, grading, onPass }: Props)
         const worker = new Worker(URL.createObjectURL(blob))
 
         const _db = new duckdb.AsyncDuckDB(new duckdb.ConsoleLogger(), worker)
-        await _db.instantiate(wasmUrl)
+        const wasmResp = await fetch(wasmUrl)
+        if (!wasmResp.ok) throw new Error(`Failed to fetch wasm: ${wasmResp.status}`)
+        await _db.instantiate(wasmResp)
 
         const conn = await _db.connect()
         await loadDatasetsIntoDuckDB(conn, datasets)
