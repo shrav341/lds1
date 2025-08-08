@@ -9,7 +9,7 @@
     "starter_sql": "SELECT * FROM customers;",
     "grading": {
       "type": "result_match",
-      "expected": { "columns": ["customer_id","name","city"], "row_count": 10, "order_matters": false }
+      "expected": { "columns": ["customer_id", "name", "city"], "row_count": 10, "order_matters": false }
     },
     "hints": ["Check the column names exactly."]
   },
@@ -22,7 +22,94 @@
     "dataset_urls": ["https://raw.githubusercontent.com/ajaykumar2010/sample-datasets/main/customers.csv"],
     "starter_sql": "SELECT name, city FROM customers;",
     "grading": { "type": "assertion_sql", "checks": ["SELECT COUNT(*)=10"] },
-    "hints": ["Make sure you selected only name and city."]
+    "hints": ["Select only name and city."]
+  },
+  {
+    "id": "lesson-03",
+    "title": "Filtering with WHERE",
+    "slug": "where-filter",
+    "course": "intro-sql",
+    "order": 3,
+    "dataset_urls": ["https://raw.githubusercontent.com/ajaykumar2010/sample-datasets/main/customers.csv"],
+    "starter_sql": "SELECT * FROM customers WHERE city='Delhi';",
+    "grading": { "type": "assertion_sql", "checks": ["SELECT COUNT(*)>=1"] },
+    "hints": ["Use WHERE with an equals comparison."]
+  },
+  {
+    "id": "lesson-04",
+    "title": "Sorting with ORDER BY",
+    "slug": "order-by",
+    "course": "intro-sql",
+    "order": 4,
+    "dataset_urls": ["https://raw.githubusercontent.com/ajaykumar2010/sample-datasets/main/customers.csv"],
+    "starter_sql": "SELECT * FROM customers ORDER BY name;",
+    "grading": { "type": "assertion_sql", "checks": ["SELECT 1=1"] },
+    "hints": ["ORDER BY name ascending."]
+  },
+  {
+    "id": "lesson-05",
+    "title": "LIMIT and OFFSET",
+    "slug": "limit-offset",
+    "course": "intro-sql",
+    "order": 5,
+    "dataset_urls": ["https://raw.githubusercontent.com/ajaykumar2010/sample-datasets/main/customers.csv"],
+    "starter_sql": "SELECT * FROM customers LIMIT 3;",
+    "grading": { "type": "result_match", "expected": { "row_count": 3 } },
+    "hints": ["Use LIMIT 3."]
+  },
+  {
+    "id": "lesson-06",
+    "title": "Using Basic Functions",
+    "slug": "functions-basics",
+    "course": "intro-sql",
+    "order": 6,
+    "dataset_urls": ["https://raw.githubusercontent.com/ajaykumar2010/sample-datasets/main/customers.csv"],
+    "starter_sql": "SELECT UPPER(name) AS name_upper FROM customers;",
+    "grading": { "type": "assertion_sql", "checks": ["SELECT COUNT(*)=10"] },
+    "hints": ["Use UPPER(name) and alias as name_upper."]
+  },
+  {
+    "id": "lesson-07",
+    "title": "GROUP BY Intro",
+    "slug": "group-by",
+    "course": "intro-sql",
+    "order": 7,
+    "dataset_urls": ["https://raw.githubusercontent.com/ajaykumar2010/sample-datasets/main/customers.csv"],
+    "starter_sql": "SELECT city, COUNT(*) AS cnt FROM customers GROUP BY city;",
+    "grading": { "type": "assertion_sql", "checks": ["SELECT SUM(cnt)=10 FROM (SELECT city, COUNT(*) AS cnt FROM customers GROUP BY city)"] },
+    "hints": ["GROUP BY city and COUNT(*)."]
+  },
+  {
+    "id": "lesson-08",
+    "title": "Aggregate Functions",
+    "slug": "aggregates",
+    "course": "intro-sql",
+    "order": 8,
+    "dataset_urls": ["https://raw.githubusercontent.com/ajaykumar2010/sample-datasets/main/customers.csv"],
+    "starter_sql": "SELECT COUNT(*) AS total FROM customers;",
+    "grading": { "type": "result_match", "expected": { "columns": ["total"], "row_count": 1 } },
+    "hints": ["COUNT(*) AS total."]
+  },
+  {
+    "id": "lesson-09",
+    "title": "Intro to JOINs",
+    "slug": "joins-intro",
+    "course": "intro-sql",
+    "order": 9,
+    "dataset_urls": ["https://raw.githubusercontent.com/ajaykumar2010/sample-datasets/main/customers.csv"],
+    "starter_sql": "SELECT * FROM customers;",
+    "grading": { "type": "assertion_sql", "checks": ["SELECT COUNT(*)=10"] },
+    "hints": ["We’ll add a second table later."]
+  },
+  {
+    "id": "lesson-10",
+    "title": "Subqueries",
+    "slug": "subqueries",
+    "course": "intro-sql",
+    "order": 10,
+    "dataset_urls": ["https://raw.githubusercontent.com/ajaykumar2010/sample-datasets/main/customers.csv"],
+    "starter_sql": "SELECT * FROM customers WHERE customer_id IN (SELECT customer_id FROM customers);",
+    "grading": { "type": "assertion_sql", "checks": ["SELECT COUNT(*)=10"] },
+    "hints": ["Use IN (subquery)."]
   }
-  // replicate entries 3–10 similarly, reusing the same dataset to start
 ]
